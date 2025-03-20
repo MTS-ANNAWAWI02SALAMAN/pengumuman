@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Pengumuman Kelulusan</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- Header -->
+<header>
+    <div class="container">
+        <div class="logo">
+            <img src="images/logo-sekolah.png" alt="Logo Sekolah" class="logo-img">
+        </div>
+        <h1>Pengumuman Kelulusan</h1>
+        <p>Masukkan NISN Anda untuk melihat pengumuman kelulusan</p>
+    </div>
+</header>
+
+<!-- Form Input -->
+<section id="content">
+    <div class="container">
+        <form onsubmit="cekKelulusan(); return false;">
+            <label for="nisn">Masukkan NISN Anda:</label><br>
+            <input type="text" id="nisn" required placeholder="Contoh: 1234567890"><br>
+            <button type="submit">Cari</button>
+        </form>
+        <div id="hasil"></div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <p>&copy; 2025 MTs An Nawawi 02 Salaman</p>
+        <p>Email: <a href="mailto:info@mtsannawawi02.sch.id">info@mtsannawawi02.sch.id</a></p>
+        <p>Website: <a href="https://mtsannawawi02.sch.id" target="_blank">www.mtsannawawi02.sch.id</a></p>
+    </div>
+</footer>
+
+<!-- JavaScript untuk Menghubungkan ke Google Apps Script -->
+<script>
+    // URL Web App dari Google Apps Script
+    var urlAppsScript = "https://script.google.com/macros/s/AKfycbwLit91G81auWQnA39HvKQcDvzyHyfT3C9TRg28Ks0TguOwizFcdE4to2ix9yFd8wY8Ig/exec"; // Ganti dengan URL Web App Anda
+
+    function cekKelulusan() {
+        var nisn = document.getElementById("nisn").value.trim(); // Menghapus spasi ekstra
+        
+        if (nisn === "") {
+            alert("Silakan masukkan NISN!");
+            return;
+        }
+
+        fetch(urlAppsScript + "?nisn=" + encodeURIComponent(nisn)) // Menggunakan encodeURIComponent agar aman
+        .then(response => response.json())
+        .then(data => {
+            if (data.nama && data.nama !== "Tidak ditemukan") {
+                document.getElementById("hasil").innerHTML = `
+                    <h2>Hasil Pencarian</h2>
+                    <p>Nama: <strong>${data.nama}</strong></p>
+                    <p>Kelas: <strong>${data.kelas}</strong></p>
+                    <p>Status Kelulusan: <strong>${data.status}</strong></p>
+                    ${data.linkSurat && data.linkSurat !== "Tidak ada SKL" ? `<p><a href="${data.linkSurat}" target="_blank" style="color: blue; font-weight: bold;">📄 Cetak SKL</a></p>` : "<p style='color: red;'>SKL belum tersedia</p>"}
+                `;
+            } else {
+                document.getElementById("hasil").innerHTML = "<p style='color:red;'>NISN tidak ditemukan!</p>";
+            }
+        })
+        .catch(error => {
+            console.error("Terjadi kesalahan:", error);
+            document.getElementById("hasil").innerHTML = "<p style='color:red;'>Terjadi kesalahan saat mengambil data!</p>";
+        });
+    }
+</script>
+
+</body>
+</html>
